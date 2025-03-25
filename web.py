@@ -150,7 +150,7 @@ def parse_adv_status(data_list):
                 'temp': int(fields[12].strip()) * 0.01 # degrees Celsius
             })
         except (ValueError, AttributeError) as e:
-            print(f"Error parsing ADV status data: {str(e)}")
+            print(f"Error parsing ADV status data: {str(e)},\n data: {data}")
             continue
             
     return parsed_data
@@ -278,24 +278,20 @@ def plot_rga_data(df_wide):
 def main():
     base_url = 'https://gems.whoi.edu/GEMS_data/'
     # Current timestamp minus one day
-    timestamp = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d%H')
+    timestamp = (datetime.now() - timedelta(days=4)).strftime('%Y%m%d%H')
 
     # Get data for a specific timestamp
     print(f"Fetching data for timestamp: {timestamp}")
     data = get_table_data(base_url, timestamp=timestamp)
-    for row in data:
-        print(row)
         
     # Parse and sort the data
-    print("\nSorted data:")
+    print("\nSorting data")
     sorted_data = parse_table_data(data)
     for key, value in sorted_data.items():
-        print(f"Type {key}: {value}")
+        print(f"Type {key}: {len(value)} elements")
 
     # Parse Turbo data
     turbo_data = sorted_data.get('!', [])
-    for row in turbo_data:
-        print(row)
     parsed_turbo = parse_turbo_status(turbo_data)
     print("\nParsed turbo data:") 
     print(pl.DataFrame(parsed_turbo).head())
