@@ -249,6 +249,27 @@ def rga_wider(df):
     new_names = {str(col): f'mass_{col}' for col in df_wide.columns if col != 'timestamp'}
     return df_wide.rename(new_names)
 
+def plot_velocity(df):
+    """
+    Plot u, v, w velocity components from ADV data
+    
+    Args:
+        df (polars.DataFrame): DataFrame with u, v, w columns
+    """
+    plt.figure(figsize=(12, 6))
+    
+    x = range(len(df))
+    plt.plot(x, df['u'], label='u')
+    plt.plot(x, df['v'], label='v') 
+    plt.plot(x, df['w'], label='w')
+    
+    plt.xlabel('Row Number')
+    plt.ylabel('Velocity (m/s)')
+    plt.title('ADV Velocity Components')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 def plot_rga_data(df_wide):
     """
     Plot RGA mass spectrometry data from a wide-format DataFrame
@@ -278,7 +299,7 @@ def plot_rga_data(df_wide):
 def main():
     base_url = 'https://gems.whoi.edu/GEMS_data/'
     # Current timestamp minus one day
-    timestamp = (datetime.now() - timedelta(days=4)).strftime('%Y%m%d%H')
+    timestamp = (datetime.now() - timedelta(days=1)).strftime('%Y%m%d%H')
 
     # Get data for a specific timestamp
     print(f"Fetching data for timestamp: {timestamp}")
@@ -312,8 +333,12 @@ def main():
     adv_data = sorted_data.get('D', [])
     parsed_data = parse_adv_data(adv_data)
     print("\nParsed ADV data:") 
-    print(pl.DataFrame(parsed_data).head())
+    adv_df = pl.DataFrame(parsed_data)
+    print(adv_df.head())
 
+    # Plot velocity components from ADV data
+    plot_velocity(adv_df)
+    
     # Convert RGA data to DataFrame and get numpy arrays for plotting
     df = pl.DataFrame(parsed_rga)
     print(df.head(11))
